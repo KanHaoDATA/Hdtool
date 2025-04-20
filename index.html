@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dự Đoán Cầu Tài Xỉu</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #000, #111);
+      color: #00ff88;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2em;
+      text-shadow: 0 0 10px #00ff88;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 18px;
+      margin: 10px;
+      border-radius: 10px;
+      border: none;
+      box-shadow: 0 0 10px #00ff88;
+      background-color: #222;
+      color: #00ff88;
+    }
+    button {
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 25px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #00ff88;
+      text-shadow: 0 0 15px #00ff88;
+    }
+    .dice {
+      font-size: 50px;
+      margin: 15px 5px;
+      text-shadow: 0 0 8px #00ff88;
+    }
+  </style>
+</head>
+<body>
+  <h1>Tool Dự Đoán Cầu Tài/Xỉu</h1>
+  <p>Nhập chuỗi kết quả gần đây (chỉ gồm 't' và 'x')</p>
+  <input type="text" id="input" placeholder="vd: ttxttxxttx" />
+  <button onclick="predict()">Dự đoán</button>
+
+  <div class="dice" id="dice">🎲 🎲 🎲</div>
+  <div class="result" id="result">Kết quả sẽ hiển thị ở đây...</div>
+
+  <script>
+    const dataset = [
+      { pattern: "ttttttttttttttt", result: "x", confidence: 0.75 },
+      { pattern: "xxxxxxxxxxxxxxx", result: "t", confidence: 0.75 },
+      { pattern: "txtxtxtxtxtxtxt", result: "x", confidence: 0.8 },
+      { pattern: "ttxxttxxttxxttx", result: "x", confidence: 0.65 },
+      { pattern: "xxxttxxxttxxxtt", result: "t", confidence: 0.65 },
+      { pattern: "ttxtttxtttxtttx", result: "x", confidence: 0.6 },
+      { pattern: "xxtxxxtxxxtxxxt", result: "t", confidence: 0.6 },
+    ];
+
+    function randomDice() {
+      const dice = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+      let d1 = Math.floor(Math.random() * 6);
+      let d2 = Math.floor(Math.random() * 6);
+      let d3 = Math.floor(Math.random() * 6);
+      document.getElementById("dice").textContent = `${dice[d1]} ${dice[d2]} ${dice[d3]}`;
+      return dice[d1] + dice[d2] + dice[d3];
+    }
+
+    function predict() {
+      const input = document.getElementById("input").value.toLowerCase().trim();
+      if (!input.match(/^[xt]+$/)) {
+        document.getElementById("result").textContent = "Vui lòng chỉ nhập chuỗi gồm 't' và 'x'.";
+        return;
+      }
+
+      let bestMatch = null;
+      let bestScore = -1;
+
+      dataset.forEach(entry => {
+        let score = 0;
+        const minLength = Math.min(input.length, entry.pattern.length);
+        for (let i = 0; i < minLength; i++) {
+          if (input[input.length - 1 - i] === entry.pattern[entry.pattern.length - 1 - i]) {
+            score++;
+          } else {
+            break;
+          }
+        }
+
+        if (score > bestScore) {
+          bestScore = score;
+          bestMatch = entry;
+        }
+      });
+
+      // Mô phỏng xúc xắc
+      randomDice();
+
+      if (bestMatch) {
+        const dựĐoán = bestMatch.result === "t" ? "Tài" : "Xỉu";
+        const độTinCậy = Math.round(bestMatch.confidence * 100);
+        document.getElementById("result").innerHTML =
+          `Dự đoán: <span style="color:#fff; text-shadow:0 0 20px #0f0">${dựĐoán}</span> (${độTinCậy}%)`;
+      } else {
+        document.getElementById("result").textContent = "Không tìm thấy mẫu tương tự để dự đoán.";
+      }
+    }
+  </script>
+</body>
+</html>
